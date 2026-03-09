@@ -1,0 +1,41 @@
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+
+const COLORS = { slow: '#eab308', down: '#ef4444' }
+
+export default function DowntimeChart({ logs }) {
+  const grouped = logs.reduce((acc, log) => {
+    const date = new Date(log.logged_at).toLocaleDateString()
+    if (!acc[date]) acc[date] = { date, slow: 0, down: 0 }
+    if (log.status === 'slow') acc[date].slow++
+    if (log.status === 'down') acc[date].down++
+    return acc
+  }, {})
+
+  const data = Object.values(grouped).slice(-7)
+
+  return (
+    <div className="app-panel rounded-xl border p-4 sm:rounded-2xl sm:p-6">
+      <div className="app-panel-header -m-4 mb-3 rounded-t-xl px-4 py-3 sm:-m-6 sm:mb-4 sm:rounded-t-2xl sm:px-6 sm:py-4">
+        <h3 className="text-base sm:text-lg font-bold text-white">Downtime History (Last 7 Days)</h3>
+      </div>
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#d3dfeb" opacity={0.7} />
+          <XAxis dataKey="date" fontSize={11} stroke="#5f738c" />
+          <YAxis fontSize={11} stroke="#5f738c" />
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+              border: '1px solid #cfdceb', 
+              borderRadius: '12px',
+              padding: '12px',
+              boxShadow: '0 10px 24px rgba(15, 39, 61, 0.16)'
+            }} 
+          />
+          <Bar dataKey="slow" stackId="a" fill="#d78f13" name="Slow" radius={[0, 0, 0, 0]} />
+          <Bar dataKey="down" stackId="a" fill="#d24e58" name="Down" radius={[8, 8, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}

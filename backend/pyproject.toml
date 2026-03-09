@@ -1,0 +1,34 @@
+[project]
+name = "server-monitor"
+version = "0.1.0"
+description = "Server Monitoring System with Admin Dashboard"
+authors = [
+    {name = "M-aman Siddiqui", email = "m.amansiddiqui2024@gmail.com"}
+]
+requires-python = ">=3.11,<4"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard] (>=0.40.0,<0.41.0)",
+    "sqlalchemy>=2.0.25",
+    "sqlmodel>=0.0.14",
+    "asyncpg>=0.29.0",
+    "pydantic-settings>=2.1.0",
+    "python-dotenv>=1.0.0",
+    "aiohttp>=3.9.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "apscheduler>=3.10.4",
+    "aiosmtplib>=3.0.1",
+    "pandas>=2.2.0",
+    "reportlab>=4.0.0",
+    "python-multipart>=0.0.6",
+    "email-validator>=2.1.0",
+    "bcrypt (==4.0.1)",
+]
+
+[tool.poetry]
+package-mode = false
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

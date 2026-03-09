@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --app-bg-1: #eff5fb;
+  --app-bg-2: #dfeaf6;
+  --app-bg-3: #c7daee;
+  --panel: rgba(255, 255, 255, 0.9);
+  --panel-strong: #ffffff;
+  --panel-border: #cfdceb;
+  --text-strong: #13273e;
+  --text-muted: #5f738c;
+  --brand: #0f6d8f;
+  --brand-strong: #0a4967;
+  --brand-soft: #d8eef6;
+  --success: #16845f;
+  --warn: #b8770f;
+  --danger: #b8424c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Public Sans', 'Segoe UI', sans-serif;
+  color: var(--text-strong);
+  background:
+    radial-gradient(1100px 700px at 20% -10%, rgba(15, 109, 143, 0.2), transparent 55%),
+    radial-gradient(900px 600px at 110% 20%, rgba(10, 73, 103, 0.18), transparent 55%),
+    linear-gradient(160deg, var(--app-bg-1), var(--app-bg-2) 55%, var(--app-bg-3));
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Space Grotesk', 'Public Sans', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.app-shell {
+  min-height: 100vh;
+  position: relative;
+}
+
+.app-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(19, 39, 62, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(19, 39, 62, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(circle at center, black 35%, transparent 85%);
+  z-index: 0;
+}
+
+.app-nav {
+  background: linear-gradient(145deg, #10273f 0%, #142336 50%, #0d1a2b 100%);
+  border-bottom: 1px solid rgba(165, 194, 219, 0.3);
+  box-shadow: 0 14px 36px rgba(7, 18, 31, 0.32);
+}
+
+.app-panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 18px 40px rgba(18, 43, 70, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+.app-panel-header {
+  background: linear-gradient(115deg, var(--brand) 0%, #176986 48%, var(--brand-strong) 100%);
+  color: #ffffff;
+}
+
+.app-title-chip {
+  background: linear-gradient(145deg, #22a7bf 0%, #0f6d8f 65%, #0a4967 100%);
+  box-shadow: 0 10px 24px rgba(8, 67, 92, 0.4);
+}
+
+.app-muted {
+  color: var(--text-muted);
+}
+
+.app-input {
+  width: 100%;
+  border: 1px solid #bfd1e3;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text-strong);
+  border-radius: 0.8rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.app-input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px rgba(15, 109, 143, 0.16);
+}
+
+.app-btn-primary {
+  background: linear-gradient(120deg, #1687a4 0%, #0f6d8f 52%, #0a4967 100%);
+  color: #ffffff;
+  box-shadow: 0 12px 20px rgba(13, 75, 102, 0.3);
+}
+
+.app-btn-primary:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.app-btn-soft {
+  background: #e6edf6;
+  color: #244260;
+  border: 1px solid #c5d4e4;
+}
+
+.app-btn-soft:hover {
+  background: #dbe8f4;
+}
+
+.app-live-chip {
+  border: 1px solid #8cd7b7;
+  background: #e9f8f0;
+  color: var(--success);
+}
+
+.app-offline-chip {
+  border: 1px solid #f2b0b7;
+  background: #fdeff1;
+  color: var(--danger);
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(24px, -36px) scale(1.08);
+  }
+  66% {
+    transform: translate(-18px, 18px) scale(0.92);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-blob {
+  animation: blob 8s infinite;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.35s ease-out;
+}
+
+.animate-fade-rise {
+  animation: fade-rise 0.45s ease-out;
+}
