@@ -1,5 +1,6 @@
 fastapi>=0.109.0
 uvicorn[standard]>=0.40.0,<0.41.0
+gunicorn>=23.0.0
 sqlalchemy>=2.0.25
 sqlmodel>=0.0.14
 asyncpg>=0.29.0

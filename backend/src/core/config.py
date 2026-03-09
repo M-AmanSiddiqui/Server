@@ -33,6 +33,12 @@ class Settings(BaseSettings):
     slow_threshold_ms: int = 2000
     check_interval_seconds: int = 30
     email_alert_delay_minutes: int = 0  # Delay before sending email alert (0 = immediate)
+
+    # App links (used in emails and deployment)
+    app_base_url: str = "http://localhost:5173"
+
+    # Debug
+    enable_debug_endpoints: bool = False
     
     # Redis
     redis_url: str = "redis://localhost:6379"
@@ -55,13 +61,10 @@ def _normalize_database_url(database_url: str) -> str:
 def get_settings() -> Settings:
     settings = Settings()
     settings.database_url = _normalize_database_url(settings.database_url)
-    # Log SECRET_KEY on first load to verify
+    # Log minimal config details once without exposing secrets.
     if not hasattr(get_settings, '_logged'):
         logger.info(f"Settings loaded from: {_env_path_str}")
-        logger.info(f"SECRET_KEY length: {len(settings.secret_key)}")
-        logger.info(f"SECRET_KEY preview: {settings.secret_key[:15]}...")
         logger.info(f"DATABASE_URL dialect: {settings.database_url.split('://')[0]}")
-        logger.info(f"Expected SECRET_KEY: D9vYp6X3K8qfJ1mWz0hRltQyBNbMvF2E")
         if settings.secret_key == "your-secret-key-change-in-production":
             logger.error("WARNING: Using default SECRET_KEY! .env file might not be loaded!")
         get_settings._logged = True

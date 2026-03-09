@@ -1,14 +1,22 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from contextlib import asynccontextmanager
 import asyncio
 import logging
+from pathlib import Path
 from src.db.database import init_db
 from src.db.session import async_session
+from src.core.config import get_settings
 from src.api.routes import auth, servers, logs, reports
 from src.websocket.handlers import websocket_endpoint
 from src.tasks.scheduler import start_scheduler, stop_scheduler
 from src.services.init_admin import create_default_admin
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+FRONTEND_DIST = PROJECT_ROOT / "frontend" / "dist"
+FRONTEND_INDEX = FRONTEND_DIST / "index.html"
+logger = logging.getLogger(__name__)
 
 # Configure logging
 logging.basicConfig(
@@ -19,17 +27,14 @@ logging.basicConfig(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Verify settings on startup
-    from src.core.config import get_settings
     settings = get_settings()
-    logger = logging.getLogger(__name__)
     logger.info("=" * 50)
-    logger.info("SERVER STARTUP - Settings Verification")
-    logger.info(f"SECRET_KEY loaded: {settings.secret_key[:20]}...")
-    logger.info(f"SECRET_KEY length: {len(settings.secret_key)}")
-    logger.info(f"Expected: D9vYp6X3K8qfJ1mWz0hRltQyBNbMvF2E")
-    if settings.secret_key != "D9vYp6X3K8qfJ1mWz0hRltQyBNbMvF2E":
-        logger.warning("SECRET_KEY mismatch! Check .env file")
+    logger.info("Server startup")
+    logger.info("Debug endpoints enabled: %s", settings.enable_debug_endpoints)
+    if FRONTEND_INDEX.exists():
+        logger.info("Frontend build found at %s", FRONTEND_DIST)
+    else:
+        logger.warning("Frontend build not found at %s", FRONTEND_DIST)
     logger.info("=" * 50)
     
     await init_db()
@@ -64,59 +69,67 @@ app.include_router(logs.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
 
 
-@app.get("/")
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
+@app.get("/", include_in_schema=False)
 async def root():
+    if FRONTEND_INDEX.exists():
+        return FileResponse(FRONTEND_INDEX)
     return {"message": "Server Monitor API is running"}
 
 
-@app.get("/debug/settings")
-async def debug_settings():
-    """Debug endpoint to check SECRET_KEY"""
-    from src.core.config import get_settings
-    settings = get_settings()
-    return {
-        "secret_key_length": len(settings.secret_key),
-        "secret_key_preview": settings.secret_key[:20] + "...",
-        "secret_key_expected": "D9vYp6X3K8qfJ1mWz0hRltQyBNbMvF2E",
-        "secret_key_match": settings.secret_key == "D9vYp6X3K8qfJ1mWz0hRltQyBNbMvF2E",
-        "algorithm": settings.algorithm,
-        "token_expire_minutes": settings.access_token_expire_minutes
-    }
+if get_settings().enable_debug_endpoints:
+    @app.get("/debug/settings")
+    async def debug_settings():
+        settings = get_settings()
+        return {
+            "secret_key_length": len(settings.secret_key),
+            "algorithm": settings.algorithm,
+            "token_expire_minutes": settings.access_token_expire_minutes,
+        }
 
 
-@app.post("/debug/test-token")
-async def test_token_creation():
-    """Test endpoint to create and validate a token"""
-    from src.core.security import create_access_token, decode_token
-    from src.core.config import get_settings
-    
-    settings = get_settings()
-    
-    # Create a test token
-    test_data = {"sub": 1, "role": "admin"}
-    token = create_access_token(test_data)
-    
-    # Try to decode it
-    payload = decode_token(token)
-    
-    return {
-        "token_created": bool(token),
-        "token_length": len(token) if token else 0,
-        "token_preview": token[:30] + "..." if token else None,
-        "token_decoded": bool(payload),
-        "payload": payload,
-        "secret_key_used": settings.secret_key[:20] + "...",
-        "secret_key_match": settings.secret_key == "D9vYp6X3K8qfJ1mWz0hRltQyBNbMvF2E"
-    }
+    @app.post("/debug/test-token")
+    async def test_token_creation():
+        from src.core.security import create_access_token, decode_token
+
+        test_data = {"sub": 1, "role": "admin"}
+        token = create_access_token(test_data)
+        payload = decode_token(token)
+
+        return {
+            "token_created": bool(token),
+            "token_length": len(token) if token else 0,
+            "token_decoded": bool(payload),
+            "payload": payload,
+        }
 
 
-@app.get("/debug/slow")
-async def debug_slow(delay_ms: int = 3000):
-    """Testing endpoint to simulate a slow but healthy server."""
-    await asyncio.sleep(max(delay_ms, 0) / 1000)
-    return {"status": "ok", "delay_ms": delay_ms}
+    @app.get("/debug/slow")
+    async def debug_slow(delay_ms: int = 3000):
+        """Testing endpoint to simulate a slow but healthy server."""
+        await asyncio.sleep(max(delay_ms, 0) / 1000)
+        return {"status": "ok", "delay_ms": delay_ms}
 
 
 @app.websocket("/ws/status")
 async def status_websocket(websocket: WebSocket):
     await websocket_endpoint(websocket)
+
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_spa(full_path: str):
+    if not FRONTEND_INDEX.exists():
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    if full_path.startswith(("api", "ws", "debug", "health")):
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    requested_path = (FRONTEND_DIST / full_path).resolve()
+    if full_path and requested_path.is_file() and FRONTEND_DIST.resolve() in requested_path.parents:
+        return FileResponse(requested_path)
+
+    return FileResponse(FRONTEND_INDEX)

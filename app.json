@@ -1,0 +1,41 @@
+{
+  "name": "server-monitor",
+  "description": "Full-stack server monitoring app (FastAPI + React) deployed as a single Heroku app.",
+  "keywords": [
+    "fastapi",
+    "react",
+    "monitoring",
+    "heroku"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "env": {
+    "SECRET_KEY": {
+      "description": "JWT signing key (use a strong random value)."
+    },
+    "DATABASE_URL": {
+      "description": "PostgreSQL connection string from Heroku Postgres."
+    },
+    "APP_BASE_URL": {
+      "description": "Public app URL for links in email alerts, e.g. https://your-app.herokuapp.com"
+    },
+    "DEFAULT_ADMIN_EMAIL": {
+      "description": "Initial admin email."
+    },
+    "DEFAULT_ADMIN_PASSWORD": {
+      "description": "Initial admin password."
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  }
+}

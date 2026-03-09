@@ -1,0 +1,13 @@
+{
+  "name": "server-monitor-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "engines": {
+    "node": "20.x",
+    "npm": "10.x"
+  },
+  "scripts": {
+    "heroku-postbuild": "npm --prefix frontend ci --include=dev && npm --prefix frontend run build",
+    "build:frontend": "npm --prefix frontend run build"
+  }
+}

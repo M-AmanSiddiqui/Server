@@ -35,9 +35,11 @@
 // export default api
 import axios from 'axios'
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/+$/, '')
+
 // Backend URL (FastAPI)
 const api = axios.create({
-  baseURL: 'http://localhost:9000/api',
+  baseURL: apiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
   },

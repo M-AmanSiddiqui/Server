@@ -1,137 +1,131 @@
 # Server Monitoring System
 
-A comprehensive server monitoring solution with real-time dashboard, smart event logging, and email alerts.
+Full-stack server monitoring platform with:
+- FastAPI backend (`/api` + WebSocket `/ws/status`)
+- React/Vite frontend (served by backend in production)
+- PostgreSQL persistence
+- Real-time status tracking, alerts, and reports
 
-## Features
+## Monorepo Layout
 
-- **User Roles**: Admin (full CRUD) and Viewer (read-only) access
-- **Real-time Monitoring**: WebSocket-based live status updates
-- **Smart Logging**: Only logs DOWN/SLOW events with progressive intervals (2min, 5min, 10min)
-- **Email Alerts**: Automatic notifications when servers go down or become slow
-- **Reports**: Download daily/weekly/monthly reports in CSV or PDF format
-- **Beautiful Dashboard**: Modern React + Tailwind CSS interface with charts
-
-## Tech Stack
-
-### Backend
-- Python 3.11+
-- FastAPI
-- PostgreSQL + SQLModel
-- APScheduler for background tasks
-- JWT Authentication
-
-### Frontend
-- React 18
-- Tailwind CSS
-- Recharts for visualizations
-- Axios for API calls
-
-## Quick Start
-
-### 1. Backend Setup
-
-```bash
-# Install dependencies
-cd Server_Monitor/backend
-poetry install
-
-# Configure environment
-# Edit .env file with your database and email settings
-
-# Run the server
-poetry run uvicorn src.main:app --reload
+```
+.
+|-- backend/      # FastAPI application
+|-- frontend/     # React application (Vite)
+|-- Procfile      # Heroku web process
+|-- requirements.txt
+|-- package.json  # Heroku frontend build step
+`-- app.json      # Heroku app metadata/buildpacks/env hints
 ```
 
-### 2. Frontend Setup
+## Local Development
+
+### 1) Backend
 
 ```bash
-cd Server_Monitor/frontend
+cd backend
+poetry install
+poetry run uvicorn src.main:app --reload --host 0.0.0.0 --port 9000
+```
+
+### 2) Frontend
+
+```bash
+cd frontend
 npm install
 npm run dev
 ```
 
-### 3. Default Admin Login
+Default local URLs:
+- Frontend: `http://localhost:5173`
+- Backend API: `http://localhost:9000/api`
 
-A default admin user is created automatically on startup:
+## Environment Variables (Backend)
 
-| Field | Value |
-|-------|-------|
-| Email | `admin@servermonitor.com` |
-| Password | `Admin@123` |
-
-**To change these credentials**, edit `backend/.env` before starting the server.
-
-**Note**: The `/view` page is **PUBLIC** - no login required to view server status.
-
-## Configuration
-
-Edit `backend/.env` file:
+Set in `backend/.env` for local or Heroku Config Vars for production:
 
 ```env
-# Database
-DATABASE_URL=postgresql+asyncpg://postgres:yourpassword@localhost:5432/server_monitor_db
-
-
-# JWT
-SECRET_KEY=your-secret-key
-
-# Default Admin
+DATABASE_URL=postgresql+asyncpg://postgres:password@localhost:5432/server_monitor_db
+SECRET_KEY=change-this-to-a-strong-random-value
 DEFAULT_ADMIN_EMAIL=admin@servermonitor.com
 DEFAULT_ADMIN_PASSWORD=Admin@123
 
-# Email Alerts (optional)
 SMTP_HOST=smtp.gmail.com
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-ADMIN_EMAIL=alerts@example.com
+SMTP_PORT=587
+SMTP_USER=
+SMTP_PASSWORD=
+ADMIN_EMAIL=
 
-# Monitoring
 SLOW_THRESHOLD_MS=2000
 CHECK_INTERVAL_SECONDS=30
+APP_BASE_URL=http://localhost:5173
+ENABLE_DEBUG_ENDPOINTS=false
 ```
+
+## Heroku Single-App Deployment (Frontend + Backend)
+
+This repository is configured so one Heroku app serves both frontend and backend.
+
+### 1) Buildpacks (order matters)
+
+```bash
+heroku buildpacks:clear -a <your-app>
+heroku buildpacks:add --index 1 heroku/nodejs -a <your-app>
+heroku buildpacks:add --index 2 heroku/python -a <your-app>
+```
+
+### 2) Add database
+
+```bash
+heroku addons:create heroku-postgresql:essential-0 -a <your-app>
+```
+
+### 3) Configure required vars
+
+```bash
+heroku config:set SECRET_KEY=<strong-random-secret> -a <your-app>
+heroku config:set DEFAULT_ADMIN_EMAIL=admin@servermonitor.com -a <your-app>
+heroku config:set DEFAULT_ADMIN_PASSWORD=<strong-password> -a <your-app>
+heroku config:set APP_BASE_URL=https://<your-app>.herokuapp.com -a <your-app>
+```
+
+Optional email vars:
+`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `ADMIN_EMAIL`
+
+### 4) Deploy
+
+```bash
+git push heroku main
+```
+
+During build:
+- `heroku-postbuild` runs from root `package.json`
+- frontend is built into `frontend/dist`
+- FastAPI serves `frontend/dist` in production
+
+### 5) Verify
+
+```bash
+heroku open -a <your-app>
+heroku logs --tail -a <your-app>
+```
+
+Health check endpoint:
+- `GET /health`
 
 ## API Endpoints
 
-| Endpoint | Method | Description | Auth |
-|----------|--------|-------------|------|
-| `/api/auth/login` | POST | Login | - |
-| `/api/auth/users` | POST | Add user | Admin |
-| `/api/servers/` | GET | List servers | **Public** |
-| `/api/servers/` | POST | Add server | Admin |
-| `/api/servers/{id}` | PUT | Update server | Admin |
-| `/api/servers/{id}` | DELETE | Delete server | Admin |
-| `/api/logs/` | GET | Get event logs | **Public** |
-| `/api/reports/download` | GET | Download report | Admin |
-| `/ws/status` | WS | Live status | - |
+- `POST /api/auth/login`
+- `POST /api/auth/users`
+- `GET /api/servers/`
+- `POST /api/servers/`
+- `PUT /api/servers/{id}`
+- `DELETE /api/servers/{id}`
+- `GET /api/logs/`
+- `GET /api/reports/download`
+- `WS /ws/status`
 
-## Project Structure
+## Final Release Document
 
-```
-Server_Monitor/
-├── backend/
-│   ├── src/
-│   │   ├── api/routes/   # API endpoints
-│   │   ├── core/         # Config, security, constants
-│   │   ├── db/           # Database connection
-│   │   ├── models/       # SQLModel models
-│   │   ├── schemas/      # Pydantic schemas
-│   │   ├── services/     # Business logic
-│   │   ├── tasks/        # Background tasks
-│   │   ├── websocket/    # WebSocket handlers
-│   │   └── main.py       # App entry
-│   ├── tests/
-│   ├── .env
-│   └── pyproject.toml
-├── frontend/
-│   └── src/
-│       ├── components/   # React components
-│       ├── pages/        # Page components
-│       ├── hooks/        # Custom hooks
-│       ├── services/     # API services
-│       └── context/      # React context
-└── README.md
-```
-
-## License
-
-MIT
+See full release and handover documentation:
+- `FINAL_RELEASE_DOCUMENTATION.md`

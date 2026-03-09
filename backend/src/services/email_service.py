@@ -36,6 +36,7 @@ class EmailService:
 
     def _build_body(self, name: str, url: str, status: str, response_ms: int | None) -> str:
         response_info = f"Response time: {response_ms}ms" if response_ms else "Server unreachable"
+        dashboard_url = f"{settings.app_base_url.rstrip('/')}/dashboard"
         return f"""Server Alert Notification
 
 Server Name: {name}
@@ -44,7 +45,7 @@ Status: {status.upper()}
 {response_info}
 
 Please check the server immediately.
-Dashboard: http://localhost:5173/dashboard"""
+Dashboard: {dashboard_url}"""
 
     async def _send_email(self, subject: str, body: str):
         if not settings.smtp_user or not settings.admin_email:
