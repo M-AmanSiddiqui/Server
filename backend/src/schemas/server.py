@@ -13,13 +13,9 @@ class ServerUpdate(BaseModel):
     is_active: bool | None = None
 
 
-class ServerListResponse(BaseModel):
+class ServerResponse(BaseModel):
     id: int
     name: str
-    url: str | None = None
+    url: str
     is_active: bool
     created_at: datetime
-
-
-class ServerResponse(ServerListResponse):
-    url: str

@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
-from src.schemas.server import ServerCreate, ServerListResponse, ServerUpdate, ServerResponse
+from src.schemas.server import ServerCreate, ServerUpdate, ServerResponse
 from src.services.server_service import ServerService
-from src.api.dependencies import get_optional_user
 from src.db.session import get_session
 import logging
 
@@ -9,24 +8,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/servers", tags=["Servers"])
 
 
-@router.get("/", response_model=list[ServerListResponse], response_model_exclude_none=True)
-async def list_servers(current_user=Depends(get_optional_user), session=Depends(get_session)):
+@router.get("/", response_model=list[ServerResponse])
+async def list_servers(session=Depends(get_session)):
     """Public endpoint - anyone can view servers"""
     service = ServerService(session)
-    servers = await service.get_all()
-
-    if current_user and current_user.role == "admin":
-        return servers
-
-    return [
-        {
-            "id": server.id,
-            "name": server.name,
-            "is_active": server.is_active,
-            "created_at": server.created_at,
-        }
-        for server in servers
-    ]
+    return await service.get_all()
 
 
 @router.post("/", response_model=ServerResponse)
