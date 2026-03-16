@@ -31,6 +31,7 @@ async def run_monitoring_cycle():
 
 async def _handle_status(session, server, status: str, response_ms: int | None):
     if status == STATUS_UP:
+        smart_logger.should_log(server.id, status)
         email_service.clear_alert(server.id)
         return
     
@@ -38,4 +39,5 @@ async def _handle_status(session, server, status: str, response_ms: int | None):
         log_service = LogService(session)
         msg = f"Server {status}: {response_ms}ms" if response_ms else f"Server {status}"
         await log_service.create_log(server.id, status, response_ms, msg)
-        await email_service.send_alert(server.id, server.name, server.url, status, response_ms)
+
+    await email_service.send_alert(server.id, server.name, server.url, status, response_ms)

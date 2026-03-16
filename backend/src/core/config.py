@@ -27,12 +27,13 @@ class Settings(BaseSettings):
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_password: str = ""
-    admin_email: str = ""
+    admin_email: str = "m.amansiddiqui2024@gmail.com,abdullahmansoor@gmail.com"
     
     # Monitoring
     slow_threshold_ms: int = 2000
     check_interval_seconds: int = 30
     email_alert_delay_minutes: int = 0  # Delay before sending email alert (0 = immediate)
+    email_alert_repeat_minutes: int = 5
 
     # App links (used in emails and deployment)
     app_base_url: str = "http://localhost:5173"

@@ -25,6 +25,12 @@
     "APP_BASE_URL": {
       "description": "Public app URL for links in email alerts, e.g. https://your-app.herokuapp.com"
     },
+    "ADMIN_EMAIL": {
+      "description": "Alert recipient emails. Use comma-separated values for multiple recipients."
+    },
+    "EMAIL_ALERT_REPEAT_MINUTES": {
+      "description": "Reminder interval in minutes while a server remains down or slow."
+    },
     "DEFAULT_ADMIN_EMAIL": {
       "description": "Initial admin email."
     },
