@@ -1,17 +1,12 @@
 import PublicLayout from '../components/PublicLayout'
 import ServerList from '../components/ServerList'
-import StatusChart from '../components/StatusChart'
-import ResponseChart from '../components/ResponseChart'
-import DowntimeChart from '../components/DowntimeChart'
 import { useServers } from '../hooks/useServers'
 import { useWebSocket } from '../hooks/useWebSocket'
-import { useLogs } from '../hooks/useLogs'
 import { Wifi, WifiOff } from 'lucide-react'
 
 export default function ViewerDashboard() {
   const { servers } = useServers()
   const { statuses, connected } = useWebSocket()
-  const { logs } = useLogs()
 
   return (
     <PublicLayout>
@@ -34,19 +29,8 @@ export default function ViewerDashboard() {
         </div>
       </div>
 
-      <div className="mb-4 animate-fade-rise sm:mb-6">
-        <ServerList servers={servers} statuses={statuses} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
-        <StatusChart statuses={statuses} />
-        <div className="lg:col-span-2">
-          <ResponseChart logs={logs} />
-        </div>
-      </div>
-
-      <div className="mt-4 animate-fade-rise sm:mt-6">
-        <DowntimeChart logs={logs} />
+      <div className="animate-fade-rise">
+        <ServerList servers={servers} statuses={statuses} variant="public" />
       </div>
     </PublicLayout>
   )

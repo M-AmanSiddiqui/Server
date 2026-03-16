@@ -20,6 +20,30 @@ export default function Dashboard() {
   const { servers, addServer, updateServer, deleteServer } = useServers()
   const { statuses, connected } = useWebSocket()
   const { logs } = useLogs()
+  const statusMap = new Map(statuses.map((status) => [status.id, status.status || 'unknown']))
+  const monitoredStatuses = servers.map((server) => statusMap.get(server.id) || 'unknown')
+  const healthyCount = monitoredStatuses.filter((status) => status === 'up').length
+  const attentionCount = monitoredStatuses.filter((status) => status !== 'up').length
+  const overviewCards = [
+    {
+      label: 'Total Servers',
+      value: servers.length,
+      tone: 'from-sky-600 to-cyan-700',
+      helper: 'Endpoints currently monitored',
+    },
+    {
+      label: 'Healthy',
+      value: healthyCount,
+      tone: 'from-emerald-600 to-green-700',
+      helper: connected ? 'Live feed connected' : 'Waiting for live feed',
+    },
+    {
+      label: 'Needs Attention',
+      value: attentionCount,
+      tone: attentionCount ? 'from-rose-600 to-red-700' : 'from-slate-500 to-slate-600',
+      helper: 'Slow, down, or pending updates',
+    },
+  ]
 
   const handleEdit = (server) => {
     setEditingServer(server)
@@ -95,6 +119,20 @@ export default function Dashboard() {
         >
           <Plus size={18} className="sm:h-5 sm:w-5" /> <span>Add Server</span>
         </button>
+      </div>
+
+      <div className="mb-4 grid grid-cols-1 gap-4 sm:mb-6 sm:grid-cols-3">
+        {overviewCards.map((card) => (
+          <div key={card.label} className="app-panel overflow-hidden rounded-xl border shadow-sm">
+            <div className={`bg-gradient-to-r px-4 py-2 ${card.tone}`}>
+              <span className="text-xs font-semibold uppercase tracking-wide text-white/85">{card.label}</span>
+            </div>
+            <div className="px-4 py-4">
+              <div className="text-2xl font-bold text-[var(--text-strong)]">{card.value}</div>
+              <p className="mt-1 text-sm text-slate-600">{card.helper}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="mb-4 animate-fade-rise sm:mb-6">

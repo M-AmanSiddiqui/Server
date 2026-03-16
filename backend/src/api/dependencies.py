@@ -109,6 +109,32 @@ async def get_current_user(
     return user
 
 
+async def get_optional_user(
+    request: Request,
+    token_from_oauth: str | None = Depends(oauth2_scheme),
+    session=Depends(get_session)
+) -> User | None:
+    token = token_from_oauth or await extract_token_from_header(request)
+    if not token:
+        return None
+
+    payload = decode_token(token)
+    if not payload:
+        logger.warning("Ignoring invalid token on optional auth dependency")
+        return None
+
+    user_id = payload.get("sub")
+    if not user_id:
+        return None
+
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if not user or not user.is_active:
+        return None
+
+    return user
+
+
 async def require_admin(user: User = Depends(get_current_user)) -> User:
     if user.role != ROLE_ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)

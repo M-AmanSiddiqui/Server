@@ -85,7 +85,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="app-input px-3 py-2.5 text-sm sm:px-4 sm:py-3 sm:text-base"
-              placeholder="admin@servermonitor.com"
+              autoComplete="username"
               required
             />
           </div>
@@ -99,6 +99,7 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               className="app-input px-3 py-2.5 text-sm sm:px-4 sm:py-3 sm:text-base"
               placeholder="Enter your password"
+              autoComplete="current-password"
               required
             />
           </div>
