@@ -3,14 +3,14 @@ from src.db.session import async_session
 from src.models.server import Server
 from src.services.monitor_service import MonitorService
 from src.services.smart_logger import SmartLogger
-from src.services.email_service import EmailService
+from src.services.elastic_email_service import ElasticEmailService
 from src.services.log_service import LogService
 from src.websocket.manager import manager
 from src.core.constants import STATUS_UP
 
 smart_logger = SmartLogger()
-email_service = EmailService()
 monitor_service = MonitorService()
+email_service = ElasticEmailService()
 
 
 async def run_monitoring_cycle():
@@ -37,7 +37,7 @@ async def _handle_status(session, server, status: str, response_ms: int | None):
     
     if smart_logger.should_log(server.id, status):
         log_service = LogService(session)
-        msg = f"Server {status}: {response_ms}ms" if response_ms else f"Server {status}"
+        msg = f"Server {status}: {response_ms}ms" if response_ms is not None else f"Server {status}"
         await log_service.create_log(server.id, status, response_ms, msg)
 
     await email_service.send_alert(server.id, server.name, server.url, status, response_ms)

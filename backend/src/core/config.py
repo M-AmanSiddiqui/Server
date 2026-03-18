@@ -22,21 +22,16 @@ class Settings(BaseSettings):
     default_admin_email: str = "admin@servermonitor.com"
     default_admin_password: str = "Admin@123"
     
-    # Email
-    smtp_host: str = "smtp.gmail.com"
-    smtp_port: int = 587
-    smtp_user: str = ""
-    smtp_password: str = ""
-    admin_email: str = "m.amansiddiqui2024@gmail.com,abdullahmansoor@gmail.com"
-    
     # Monitoring
     slow_threshold_ms: int = 2000
     check_interval_seconds: int = 30
-    email_alert_delay_minutes: int = 0  # Delay before sending email alert (0 = immediate)
-    email_alert_repeat_minutes: int = 5
+    alert_repeat_minutes: int = 5
 
-    # App links (used in emails and deployment)
-    app_base_url: str = "http://localhost:5173"
+    # Elastic Email alerts
+    elastic_email_api_key: str = ""
+    elastic_email_base_url: str = "https://api.elasticemail.com/v4"
+    elastic_email_from_email: str = ""
+    alert_recipients: str = ""
 
     # Debug
     enable_debug_endpoints: bool = False
@@ -48,6 +43,7 @@ class Settings(BaseSettings):
         env_file = _env_path_str
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "ignore"
 
 
 def _normalize_database_url(database_url: str) -> str:

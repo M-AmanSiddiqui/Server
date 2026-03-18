@@ -16,19 +16,20 @@ Server_Monitor/
 ### 📂 Core Configuration Files
 
 #### `backend/.env`
-**Purpose:** Environment variables (database, JWT secret, email settings)
+**Purpose:** Environment variables (database, JWT secret, monitoring + alert settings)
 **When to Edit:**
 - Change database connection
 - Update JWT secret key
-- Configure email SMTP settings
 - Change monitoring interval
+- Configure Elastic Email alerts
 
 **Key Variables:**
 - `DATABASE_URL` - PostgreSQL connection string
 - `SECRET_KEY` - JWT token encryption key
 - `CHECK_INTERVAL_SECONDS` - Server check frequency (default: 300 = 5 minutes)
 - `SLOW_THRESHOLD_MS` - Response time threshold for "slow" status
-- `EMAIL_*` - Email configuration
+- `ELASTIC_EMAIL_*` - Elastic Email delivery configuration
+- `ALERT_*` - Alert recipient and reminder settings
 
 ---
 
@@ -56,8 +57,8 @@ Server_Monitor/
 - Database URL
 - JWT secret key
 - Token expiration time
-- Email configuration
 - Monitoring thresholds
+- Elastic Email alert delivery
 
 ---
 
@@ -251,17 +252,16 @@ Server_Monitor/
 
 ---
 
-##### `backend/src/services/email_service.py`
-**Purpose:** Email alert sending
+##### `backend/src/services/elastic_email_service.py`
+**Purpose:** Send alert emails through Elastic Email
 **When to Edit:**
-- Change email template
-- Update SMTP settings
-- Modify alert frequency logic
+- Change alert email content
+- Update Elastic Email sender or recipients
+- Modify reminder frequency logic
 
 **Functions:**
-- `send_alert()` - Send email notification
-- `clear_alert()` - Clear alert state
-- `should_send_alert()` - Check if alert should be sent
+- `send_alert()` - Send initial or reminder alert email
+- `clear_alert()` - Clear in-memory alert state after recovery
 
 ---
 
@@ -710,18 +710,9 @@ Server_Monitor/
 
 ---
 
-### How to Change Email Alert Template
+### How to Change Alert Email Content
 
-1. **Backend:** Edit `backend/src/services/email_service.py`
-   ```python
-   def _build_body(self, name: str, url: str, status: str, response_ms: int | None) -> str:
-       return f"""
-       Your custom email template here
-       Server: {name}
-       Status: {status}
-       """
-   ```
-
+1. **Backend:** Edit `backend/src/services/elastic_email_service.py`
 2. **Restart backend server**
 
 ---
@@ -805,10 +796,10 @@ Server_Monitor/
 |------|--------------|
 | Change monitoring interval | `backend/.env` → `CHECK_INTERVAL_SECONDS` |
 | Change slow threshold | `backend/.env` → `SLOW_THRESHOLD_MS` |
-| Update email settings | `backend/.env` → `EMAIL_*` variables |
+| Update Elastic Email settings | `backend/.env` → `ELASTIC_EMAIL_*` and `ALERT_*` variables |
 | Change JWT secret | `backend/.env` → `SECRET_KEY` |
 | Modify server check logic | `backend/src/services/monitor_service.py` |
-| Change email template | `backend/src/services/email_service.py` |
+| Change alert email content | `backend/src/services/elastic_email_service.py` |
 | Update report format | `backend/src/services/report_pdf.py` or `report_csv.py` |
 | Add new API endpoint | `backend/src/api/routes/` → create new file |
 | Change login page | `frontend/src/pages/Login.jsx` |

@@ -4,7 +4,7 @@ Full-stack server monitoring platform with:
 - FastAPI backend (`/api` + WebSocket `/ws/status`)
 - React/Vite frontend (served by backend in production)
 - PostgreSQL persistence
-- Real-time status tracking, alerts, and reports
+- Real-time status tracking, Elastic Email alerts, event logs, and reports
 
 ## Monorepo Layout
 
@@ -50,15 +50,14 @@ SECRET_KEY=change-this-to-a-strong-random-value
 DEFAULT_ADMIN_EMAIL=admin@servermonitor.com
 DEFAULT_ADMIN_PASSWORD=Admin@123
 
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASSWORD=
-ADMIN_EMAIL=
+ELASTIC_EMAIL_API_KEY=your-elastic-email-api-key
+ELASTIC_EMAIL_BASE_URL=https://api.elasticemail.com/v4
+ELASTIC_EMAIL_FROM_EMAIL=noreply@yourdomain.com
+ALERT_RECIPIENTS=ops@example.com,admin@example.com
+ALERT_REPEAT_MINUTES=5
 
 SLOW_THRESHOLD_MS=2000
 CHECK_INTERVAL_SECONDS=30
-APP_BASE_URL=http://localhost:5173
 ENABLE_DEBUG_ENDPOINTS=false
 ```
 
@@ -86,11 +85,16 @@ heroku addons:create heroku-postgresql:essential-0 -a <your-app>
 heroku config:set SECRET_KEY=<strong-random-secret> -a <your-app>
 heroku config:set DEFAULT_ADMIN_EMAIL=admin@servermonitor.com -a <your-app>
 heroku config:set DEFAULT_ADMIN_PASSWORD=<strong-password> -a <your-app>
-heroku config:set APP_BASE_URL=https://<your-app>.herokuapp.com -a <your-app>
+heroku config:set ELASTIC_EMAIL_API_KEY=<your-elastic-email-api-key> -a <your-app>
+heroku config:set ELASTIC_EMAIL_BASE_URL=https://api.elasticemail.com/v4 -a <your-app>
+heroku config:set ELASTIC_EMAIL_FROM_EMAIL=noreply@kogents.ai -a <your-app>
+heroku config:set ALERT_RECIPIENTS=ops@example.com,admin@example.com -a <your-app>
+heroku config:set ALERT_REPEAT_MINUTES=5 -a <your-app>
 ```
 
-Optional email vars:
-`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `ADMIN_EMAIL`
+`ELASTIC_EMAIL_FROM_EMAIL` must be a sender address or domain already verified in Elastic Email.
+
+Local secrets stay out of Git because `.gitignore` excludes `.env`, `backend/.env`, `frontend/.env`, and `.env.*`.
 
 ### 4) Deploy
 

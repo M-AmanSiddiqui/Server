@@ -20,14 +20,14 @@ SLOW_THRESHOLD_MS=1000  # Response time in milliseconds
 
 ---
 
-### Update Email Settings
+### Update Elastic Email Alert Settings
 **File:** `backend/.env`
 ```env
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASSWORD=your-password
-EMAIL_FROM=noreply@servermonitor.com
+ELASTIC_EMAIL_API_KEY=your-elastic-email-api-key
+ELASTIC_EMAIL_BASE_URL=https://api.elasticemail.com/v4
+ELASTIC_EMAIL_FROM_EMAIL=noreply@yourdomain.com
+ALERT_RECIPIENTS=ops@example.com,admin@example.com
+ALERT_REPEAT_MINUTES=5
 ```
 **Action:** Restart backend server
 
@@ -86,7 +86,8 @@ EMAIL_FROM=noreply@servermonitor.com
 | Feature | Backend File | Frontend File |
 |---------|-------------|---------------|
 | **Server Monitoring** | `services/monitor_service.py` | `hooks/useServers.js` |
-| **Email Alerts** | `services/email_service.py` | - |
+| **Elastic Email Alerts** | `services/elastic_email_service.py` | - |
+| **Event Logs** | `services/log_service.py` | `hooks/useLogs.js` |
 | **Reports (PDF)** | `services/report_pdf.py` | `pages/Reports.jsx` |
 | **Reports (CSV)** | `services/report_csv.py` | `pages/Reports.jsx` |
 | **Login** | `api/routes/auth.py` | `pages/Login.jsx` |
