@@ -94,14 +94,18 @@ export default function ServerList({ servers, statuses, onDelete, onEdit, showAc
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
+                            type="button"
                             onClick={() => onEdit?.(server)}
                             className="rounded-lg p-2 text-sky-700 transition-all duration-200 hover:bg-sky-100 hover:scale-105"
+                            aria-label={`Edit ${server.name}`}
                           >
                             <Edit size={18} />
                           </button>
                           <button
+                            type="button"
                             onClick={() => onDelete?.(server.id)}
                             className="rounded-lg p-2 text-rose-700 transition-all duration-200 hover:bg-rose-100 hover:scale-105"
+                            aria-label={`Delete ${server.name}`}
                           >
                             <Trash2 size={18} />
                           </button>
@@ -125,14 +129,14 @@ export default function ServerList({ servers, statuses, onDelete, onEdit, showAc
           return (
             <div key={server.id} className="app-panel rounded-xl border p-4">
               <div className="mb-3 flex items-start justify-between">
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <h4 className="mb-1 font-semibold text-slate-900">{server.name}</h4>
                   {!isPublicView && (
                     <a
                       href={server.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-1.5 text-xs font-medium text-sky-700 transition-colors hover:text-sky-900 hover:underline sm:text-sm"
+                      className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-sky-700 transition-colors hover:text-sky-900 hover:underline sm:text-sm"
                     >
                       <span className="truncate">{server.url}</span>
                       <ExternalLink size={12} className="shrink-0" />
@@ -140,16 +144,20 @@ export default function ServerList({ servers, statuses, onDelete, onEdit, showAc
                   )}
                 </div>
                 {showActions && (
-                  <div className="ml-2 flex items-center gap-2">
+                  <div className="relative z-10 ml-2 flex shrink-0 items-center gap-2">
                     <button
+                      type="button"
                       onClick={() => onEdit?.(server)}
                       className="rounded-lg p-1.5 text-sky-700 transition-all duration-200 hover:bg-sky-100"
+                      aria-label={`Edit ${server.name}`}
                     >
                       <Edit size={16} />
                     </button>
                     <button
+                      type="button"
                       onClick={() => onDelete?.(server.id)}
                       className="rounded-lg p-1.5 text-rose-700 transition-all duration-200 hover:bg-rose-100"
+                      aria-label={`Delete ${server.name}`}
                     >
                       <Trash2 size={16} />
                     </button>

@@ -1,4 +1,7 @@
+from sqlalchemy import delete
 from sqlmodel import select
+
+from src.models.event_log import EventLog
 from src.models.server import Server
 from src.schemas.server import ServerCreate, ServerUpdate
 
@@ -44,6 +47,13 @@ class ServerService:
         server = await self.get_by_id(server_id)
         if not server:
             return False
-        await self.session.delete(server)
-        await self.session.commit()
-        return True
+        try:
+            await self.session.execute(
+                delete(EventLog).where(EventLog.server_id == server_id)
+            )
+            await self.session.delete(server)
+            await self.session.commit()
+            return True
+        except Exception:
+            await self.session.rollback()
+            raise
